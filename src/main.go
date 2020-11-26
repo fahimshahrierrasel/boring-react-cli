@@ -29,6 +29,7 @@ func main() {
 
 func setComponentScaffoldCommand() {
 	var name string
+	var fileType string
 	var style string
 	componentScaffold := []*cli.Command{
 		{
@@ -42,6 +43,12 @@ func setComponentScaffoldCommand() {
 					Destination: &name,
 				},
 				&cli.StringFlag{
+					Name: "type",
+					Value: "js",
+					Usage: "type of the script file [js, jsx, ts, tsx]",
+					Destination: &fileType,
+				},
+				&cli.StringFlag{
 					Name:        "style",
 					Value:       "scss",
 					Usage:       "type of the style [css, scss]",
@@ -50,7 +57,7 @@ func setComponentScaffoldCommand() {
 			},
 			Usage: "Create component folder, file, style and index",
 			Action: func(c *cli.Context) error {
-				createComponetFile(name, style)
+				createComponetFile(name, fileType, style)
 				return nil
 			},
 		},
@@ -59,15 +66,21 @@ func setComponentScaffoldCommand() {
 	app.Commands = append(app.Commands, componentScaffold...)
 }
 
-func createComponetFile(name string, style string) bool {
+func createComponetFile(name string, fileType string, style string) bool {
 	dir, err := os.Getwd()
 
 	if err != nil {
 		log.Fatal(err)
 	}
-	componentFile := filepath.Join(dir, name, fmt.Sprintf("%s.js", name))
+
+	indexFileName := "index.js"
+	if fileType == "ts" || fileType == "tsx" {
+		indexFileName = "index.ts"
+	}
+
+	componentFile := filepath.Join(dir, name, fmt.Sprintf("%s.%s", name, fileType))
 	styleFile := filepath.Join(dir, name, fmt.Sprintf("%s.%s", name, style))
-	indexFile := filepath.Join(dir, name, "index.js")
+	indexFile := filepath.Join(dir, name, indexFileName)
 
 	fmt.Printf("Scaffloding Component %s with style %s\n", name, style)
 	
